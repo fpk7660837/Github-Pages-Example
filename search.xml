@@ -5,7 +5,7 @@
     
     <entry>
       <title><![CDATA[Spark转载系列-Spark论文阅读笔记]]></title>
-      <url>http://elasticxxoo.com/2016/11/10/Spark%E8%BD%AC%E8%BD%BD%E7%B3%BB%E5%88%97-Spark%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/</url>
+      <url>http://elasticxxoo.com/2016/11/10/spark-reprinted-series-spark-article-note/</url>
       <content type="html"><![CDATA[<h1 id="楔子"><a href="#楔子" class="headerlink" title="楔子"></a>楔子</h1><p>​    源码阅读是一件非常容易的事，也是一件非常难的事。容易的是代码就在那里，一打开就可以看到。难的是要通过代码明白作者当初为什么要这样设计，设计之初要解决的主要问题是什么。</p>
 <p>​    在对 Spark 的源码进行具体的走读之前，如果想要快速对 Spark 的有一个整体性的认识，阅读 Matei Zaharia 做的 Spark 论文是一个非常不错的选择。</p>
 <p>​    在阅读该论文的基础之上，再结合 Spark 作者在 2012 Developer Meetup 上做的演讲 Introduction to Spark Internals，那么对于 Spark 的内部实现会有一个比较大概的了解。</p>
