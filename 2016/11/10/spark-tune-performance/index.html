@@ -97,7 +97,7 @@
 <meta property="og:image" content="http://blog.cloudera.com/wp-content/uploads/2015/02/spark-tuning-f3.png">
 <meta property="og:image" content="http://blog.cloudera.com/wp-content/uploads/2015/02/spark-tuning-f4.png">
 <meta property="og:image" content="http://blog.cloudera.com/wp-content/uploads/2015/02/spark-tuning-f5.png">
-<meta property="og:updated_time" content="2016-11-10T14:31:50.000Z">
+<meta property="og:updated_time" content="2016-11-10T15:33:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spark 性能调优(一)">
 <meta name="twitter:description" content="Apache Spark Jobs 性能调优（一）原文地址：http://blog.cloudera.com/blog/2015/03/how-to-tune-your-apache-spark-jobs-part-1/
@@ -360,7 +360,7 @@
 <p>选择 <em>Operator</em> 方案的主要目标是减少 <em>shuffle</em> 的次数以及被 <em>shuffle</em> 的文件的大小。因为 <em>shuffle</em> 是最耗资源的操作，所以有 <em>shuffle</em> 的数据都需要写到磁盘并且通过网络传递。<strong>repartition</strong>，<strong>join</strong>，<strong>cogroup</strong>，以及任何 <strong>*By</strong> 或者 <strong>*ByKey</strong> 的 <em>transformation</em> 都需要 <em>shuffle</em> 数据。不是所有这些 <em>Operator</em> 都是平等的，但是有些常见的性能陷阱是需要注意的。</p>
 <ul>
 <li>当进行联合的规约操作时，避免使用 <strong>groupByKey</strong>。举个例子，rdd.groupByKey().mapValues(<em> .sum) 与 rdd.reduceByKey(</em> + _) 执行的结果是一样的，但是前者需要把全部的数据通过网络传递一遍，而后者只需要根据每个 <em>key</em> 局部的 <em>partition</em> 累积结果，在 <em>shuffle</em> 的之后把局部的累积值相加后得到结果。</li>
-<li>当输入和输入的类型不一致时，避免使用 <strong>reduceByKey</strong>。举个例子，我们需要实现为每一个 key 查找所有不相同的 string。一个方法是利用 <strong>map</strong> 把每个元素的转换成一个 Set，再使用 <strong>reduceByKey</strong> 将这些 Set 合并起来</li>
+<li>当输入和输出的类型不一致时，避免使用 <strong>reduceByKey</strong>。举个例子，我们需要实现为每一个 key 查找所有不相同的 string。一个方法是利用 <strong>map</strong> 把每个元素的转换成一个 Set，再使用 <strong>reduceByKey</strong> 将这些 Set 合并起来</li>
 </ul>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rdd.map(kv =&gt; (kv._1, <span class="keyword">new</span> <span class="type">Set</span>[<span class="type">String</span>]() + kv._2))</div><div class="line">    .reduceByKey(_ ++ _)</div></pre></td></tr></table></figure>
 <p>这段代码生成了无数的非必须的对象，因为每个需要为每个 record 新建一个 Set。这里使用 <strong>aggregateByKey</strong> 更加适合，因为这个操作是在 <strong>map</strong> 阶段做聚合。</p>
