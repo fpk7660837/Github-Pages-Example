@@ -4,6 +4,92 @@
   
     
     <entry>
+      <title><![CDATA[Spark转载系列-Job的提交与运行]]></title>
+      <url>http://elasticxxoo.com/2016/11/12/spark-reprinted-series-job-submit-and-execute/</url>
+      <content type="html"><![CDATA[<p><strong>概要</strong></p>
+<p>本文以 wordCount 为例，详细说明 spark 创建和运行 job 的过程，重点是在进程及线程的创建。</p>
+<h1 id="实验环境搭建"><a href="#实验环境搭建" class="headerlink" title="实验环境搭建"></a>实验环境搭建</h1><p>在进行后续操作前，确保下列条件已满足。</p>
+<ol>
+<li>下载 spark binary 0.9.1</li>
+<li>安装 scala</li>
+<li>安装 sbt</li>
+<li>安装 java</li>
+</ol>
+<h1 id="启动-spark-shell"><a href="#启动-spark-shell" class="headerlink" title="启动 spark-shell"></a>启动 spark-shell</h1><h2 id="单机模式运行，即-local-模式"><a href="#单机模式运行，即-local-模式" class="headerlink" title="单机模式运行，即 local 模式"></a>单机模式运行，即 local 模式</h2><p>local 模式运行非常简单，只要运行以下命令即可，假设当前目录是 $SPARK_HOME</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">MASTER=local bin/spark-shell</div></pre></td></tr></table></figure>
+<p>“MASTER=local” 就是表明当前运行在单机模式</p>
+<h2 id="local-cluster-方式运行"><a href="#local-cluster-方式运行" class="headerlink" title="local cluster 方式运行"></a>local cluster 方式运行</h2><p>local cluster 模式是一种伪 cluster 模式，在单机环境下模拟 standalone 的集群，启动顺序分别如下</p>
+<ol>
+<li>启动 master</li>
+<li>启动 worker</li>
+<li>启动 spark-shell</li>
+</ol>
+<h3 id="master"><a href="#master" class="headerlink" title="master"></a>master</h3><p>$SPARK_HOME/sbin/start-master.sh</p>
+<p>&nbsp;注意运行时的输出，日志默认保存在 $SPARK_HOME/logs 目录。</p>
+<p>master 主要是运行类 <strong>org.apache.spark.deploy.master.Master，</strong>在 8080 端口启动监听，日志如下图所示<img src="http://images.cnitblog.com/i/469775/201404/211026525607093.png" alt=""></p>
+<h3 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h3><ol>
+<li><p>进入 $SPARK_HOME/conf 目录</p>
+</li>
+<li><p>将 spark-env.sh.template 重命名为 spark-env.sh</p>
+</li>
+<li><p>修改 spark-env.sh，添加如下内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">export SPARK_MASTER_IP=localhost</div><div class="line"></div><div class="line">export SPARK_LOCAL_IP=localhost</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="运行-worker"><a href="#运行-worker" class="headerlink" title="运行 worker"></a>运行 worker</h3><pre><code>bin/spark-class org.apache.spark.deploy.worker.Worker spark://localhost:7077 -i 127.0.0.1  -c 1 -m 512M
+</code></pre><p>worker 启动完成，连接到 master。打开 maser 的 web ui 可以看到连接上来的 worker. Master WEb UI 的监听地址是<em><strong><a href="http://localhost:8080" target="_blank" rel="external">http://localhost:8080</a></strong></em></p>
+<h3 id="启动-spark-shell-1"><a href="#启动-spark-shell-1" class="headerlink" title="启动 spark-shell"></a>启动 spark-shell</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">MASTER=spark://localhost:7077 bin/spark-shell</div></pre></td></tr></table></figure>
+<p>如果一切顺利，将看到下面的提示信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Created spark context..</div><div class="line"></div><div class="line">Spark context available as sc.</div></pre></td></tr></table></figure>
+<p>可以用浏览器打开 localhost:4040 来查看如下内容</p>
+<ol>
+<li>stages</li>
+<li>storage</li>
+<li>environment</li>
+<li>executors</li>
+</ol>
+<h1 id="wordcount"><a href="#wordcount" class="headerlink" title="wordcount"></a>wordcount</h1><p>上述环境准备妥当之后，我们在 sparkshell 中运行一下最简单的例子，在 spark-shell 中输入如下代码</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">scala&gt;sc.textFile(<span class="string">"README.md"</span>).filter(_.contains(<span class="string">"Spark"</span>)).count</div></pre></td></tr></table></figure>
+<p>上述代码统计在 README.md 中含有 Spark 的行数有多少</p>
+<h1 id="部署过程详解"><a href="#部署过程详解" class="headerlink" title="部署过程详解"></a>部署过程详解</h1><p>Spark 布置环境中组件构成如下图所示。</p>
+<p><img src="http://ww4.sinaimg.cn/large/65e4f1e6gw1f9p5o6xylnj20gk07yq3m.jpg" alt=""></p>
+<ul>
+<li><strong>Driver Program</strong> 简要来说在 spark-shell 中输入的 wordcount 语句对应于上图的 Driver Program.</li>
+<li><strong>Cluster Manager </strong>就是对应于上面提到的 master，主要起到 deploy management 的作用</li>
+<li><strong>Worker Node</strong>与 Master 相比，这是 slave node。上面运行各个 executor，executor 可以对应于线程。executor 处理两种基本的业务逻辑，一种就是 driver programme, 另一种就是 job 在提交之后拆分成各个 stage，每个 stage 可以运行一到多个 task</li>
+</ul>
+<p><strong>Notes:</strong> 在集群 (cluster) 方式下, Cluster Manager 运行在一个<strong>jvm</strong> 进程之中，而 worker 运行在另一个<strong>jvm</strong> 进程中。在 local cluster 中，这些 jvm 进程都在同一台机器中，如果是真正的 standalone 或 Mesos 及 Yarn 集群，worker 与 master 或分布于不同的主机之上。</p>
+<h1 id="JOB-的生成和运行"><a href="#JOB-的生成和运行" class="headerlink" title="JOB 的生成和运行"></a>JOB 的生成和运行</h1><p>job 生成的简单流程如下</p>
+<ol>
+<li>首先应用程序创建 SparkContext 的实例，如实例为 sc</li>
+<li>利用 SparkContext 的实例来创建生成 RDD</li>
+<li>经过一连串的 transformation 操作，原始的 RDD 转换成为其它类型的 RDD</li>
+<li>当 action 作用于转换之后 RDD 时，会调用 SparkContext 的 runJob 方法</li>
+<li>sc.runJob 的调用是后面一连串反应的起点，关键性的跃变就发生在此处</li>
+</ol>
+<p>&nbsp;调用路径大致如下</p>
+<ol>
+<li>sc.runJob-&gt;dagScheduler.runJob-&gt;submitJob</li>
+<li>DAGScheduler::submitJob 会创建 JobSummitted 的 event 发送给内嵌类<strong>eventProcessActor</strong></li>
+<li>eventProcessActor 在接收到 JobSubmmitted 之后调用<strong>processEvent</strong> 处理函数</li>
+<li>job 到 stage 的转换，生成 finalStage 并提交运行，关键是调用<strong>submitStage</strong></li>
+<li>在 submitStage 中会计算 stage 之间的依赖关系，依赖关系分为<strong>宽依赖</strong>和<strong>窄依赖</strong>两种</li>
+<li>如果计算中发现当前的 stage 没有任何依赖或者所有的依赖都已经准备完毕，则提交 task</li>
+<li>提交 task 是调用函数<strong>submitMissingTasks</strong> 来完成</li>
+<li>task 真正运行在哪个 worker 上面是由 TaskScheduler 来管理，也就是上面的 submitMissingTasks 会调用 TaskScheduler::submitTasks</li>
+<li>TaskSchedulerImpl 中会根据 Spark 的当前运行模式来创建相应的 backend, 如果是在单机运行则创建 LocalBackend</li>
+<li>LocalBackend 收到 TaskSchedulerImpl 传递进来的<strong>ReceiveOffers</strong> 事件</li>
+<li>receiveOffers-&gt;executor.launchTask-&gt;TaskRunner.run</li>
+</ol>
+<p>代码片段 executor.lauchTask</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">launchTask</span></span>(context: <span class="type">ExecutorBackend</span>, taskId: <span class="type">Long</span>, serializedTask: <span class="type">ByteBuffer</span>) &#123;</div><div class="line">   <span class="keyword">val</span> tr = <span class="keyword">new</span> <span class="type">TaskRunner</span>(context, taskId, serializedTask)</div><div class="line">   runningTasks.put(taskId, tr)</div><div class="line">   threadPool.execute(tr)</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>说了这么一大通，也就是讲最终的逻辑处理切切实实是发生在 TaskRunner 这么一个 executor 之内。</p>
+<p>运算结果是包装成为 MapStatus 然后通过一系列的内部消息传递，反馈到 DAGScheduler，这一个消息传递路径不是过于复杂，有兴趣可以自行勾勒。   </p>
+<p><a href="http://www.cnblogs.com/hseagle/p/3673123.html" target="_blank" rel="external">转载自徽沪一郎的博客</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Spark 性能调优(一)]]></title>
       <url>http://elasticxxoo.com/2016/11/10/spark-tune-performance/</url>
       <content type="html"><![CDATA[<h1 id="Apache-Spark-Jobs-性能调优（一）"><a href="#Apache-Spark-Jobs-性能调优（一）" class="headerlink" title="Apache Spark Jobs 性能调优（一）"></a>Apache Spark Jobs 性能调优（一）</h1><p>原文地址：<a href="http://blog.cloudera.com/blog/2015/03/how-to-tune-your-apache-spark-jobs-part-1/" target="_blank" rel="external">http://blog.cloudera.com/blog/2015/03/how-to-tune-your-apache-spark-jobs-part-1/</a></p>
