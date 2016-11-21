@@ -1,0 +1,965 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="jvm java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="这里列出来一些JVM里面重要的线程，用来可以更好的分析Thread dump
+
+
+
+线程名称
+所属
+解释说明
+
+
+
+
+Attach Listener
+JVM
+Attach Listener 线程是负责接收到外部的命令，而对该命令进行执行的并且吧结果返回给发送者。通常我们会用一些命令去要求 jvm 给我们一些反馈信息，如：java -version、jmap、jstack 等等。 如果该线程在 jv">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jvm重要线程说明">
+<meta property="og:url" content="http://elasticxxoo.com/2016/11/22/jvm重要线程说明/index.html">
+<meta property="og:site_name" content="Kevin's Blog">
+<meta property="og:description" content="这里列出来一些JVM里面重要的线程，用来可以更好的分析Thread dump
+
+
+
+线程名称
+所属
+解释说明
+
+
+
+
+Attach Listener
+JVM
+Attach Listener 线程是负责接收到外部的命令，而对该命令进行执行的并且吧结果返回给发送者。通常我们会用一些命令去要求 jvm 给我们一些反馈信息，如：java -version、jmap、jstack 等等。 如果该线程在 jv">
+<meta property="og:updated_time" content="2016-11-21T16:41:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jvm重要线程说明">
+<meta name="twitter:description" content="这里列出来一些JVM里面重要的线程，用来可以更好的分析Thread dump
+
+
+
+线程名称
+所属
+解释说明
+
+
+
+
+Attach Listener
+JVM
+Attach Listener 线程是负责接收到外部的命令，而对该命令进行执行的并且吧结果返回给发送者。通常我们会用一些命令去要求 jvm 给我们一些反馈信息，如：java -version、jmap、jstack 等等。 如果该线程在 jv">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://elasticxxoo.com/2016/11/22/jvm重要线程说明/"/>
+
+  <title> jvm重要线程说明 | Kevin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?73f09ea81fbacddf8a8f21446d388867";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Kevin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">这个人太懒了，什么都不想留下</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                jvm重要线程说明
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-22T00:39:18+08:00" content="2016-11-22">
+              2016-11-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/22/jvm重要线程说明/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/22/jvm重要线程说明/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这里列出来一些JVM里面重要的线程，用来可以更好的分析Thread dump</p>
+<table>
+<thead>
+<tr>
+<th>线程名称</th>
+<th>所属</th>
+<th>解释说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attach Listener</td>
+<td>JVM</td>
+<td>Attach Listener 线程是负责接收到外部的命令，而对该命令进行执行的并且吧结果返回给发送者。通常我们会用一些命令去要求 jvm 给我们一些反馈信息，如：java -version、jmap、jstack 等等。 如果该线程在 jvm 启动的时候没有初始化，那么，则会在用户第一次执行 jvm 命令时，得到启动。</td>
+</tr>
+<tr>
+<td>Signal Dispatcher</td>
+<td>JVM</td>
+<td>前面我们提到第一个 Attach Listener 线程的职责是接收外部 jvm 命令，当命令接收成功后，会交给 signal dispather 线程去进行分发到各个不同的模块处理命令，并且返回处理结果。 signal dispather 线程也是在第一次接收外部 jvm 命令时，进行初始化工作。</td>
+</tr>
+<tr>
+<td>CompilerThread0</td>
+<td>JVM</td>
+<td>用来调用 JITing，实时编译装卸 class 。 通常，jvm 会启动多个线程来处理这部分工作，线程名称后面的数字也会累加，例如：CompilerThread1</td>
+</tr>
+<tr>
+<td>Concurrent Mark-Sweep GC Thread</td>
+<td>JVM</td>
+<td>并发标记清除垃圾回收器（就是通常所说的 CMS GC）线程， 该线程主要针对于老年代垃圾回收。ps：启用该垃圾回收器，需要在 jvm 启动参数中加上： -XX:+UseConcMarkSweepGC</td>
+</tr>
+<tr>
+<td>DestroyJavaVM</td>
+<td>JVM</td>
+<td>执行 main() 的线程在 main 执行完后调用 JNI 中的 jni_DestroyJavaVM() 方法唤起 DestroyJavaVM 线程。  JVM 在 Jboss 服务器启动之后，就会唤起 DestroyJavaVM 线程，处于等待状态，等待其它线程（java 线程和 native 线程）退出时通知它卸载 JVM。线程退出时，都会判断自己当前是否是整个 JVM 中最后一个非 deamon 线程，如果是，则通知 DestroyJavaVM 线程卸载 JVM。ps：扩展一下：1. 如果线程退出时判断自己不为最后一个非 deamon 线程，那么调用 thread-&gt;exit(false) ，并在其中抛出 thread_end 事件，jvm 不退出。2. 如果线程退出时判断自己为最后一个非 deamon 线程，那么调用 before_exit() 方法，抛出两个事件： 事件 1：thread_end 线程结束事件；事件 2：VM 的 death 事件。然后调用 thread-&gt;exit(true) 方法，接下来把线程从 active list 卸下，删除线程等等一系列工作执行完成后，则通知正在等待的 DestroyJavaVM 线程执行卸载 JVM 操作。</td>
+</tr>
+<tr>
+<td>ContainerBackgroundProcessor 线程</td>
+<td>JBOSS</td>
+<td>它是一个守护线程, 在 jboss 服务器在启动的时候就初始化了, 主要工作是定期去检查有没有 Session 过期. 过期则清除.参考：<a href="http://liudeh-009.iteye.com/blog/1584876" target="_blank" rel="external">http://liudeh-009.iteye.com/blog/1584876</a></td>
+</tr>
+<tr>
+<td>Dispatcher-Thread-3  线程</td>
+<td>Log4j</td>
+<td>Log4j 具有异步打印日志的功能，需要异步打印日志的 Appender 都需要注册到 AsyncAppender 对象里面去，由 AsyncAppender 进行监听，决定何时触发日志打印操作。 AsyncAppender 如果监听到它管辖范围内的 Appender 有打印日志的操作，则给这个 Appender 生成一个相应的 event，并将该 event 保存在一个 buffuer 区域内。 Dispatcher-Thread-3 线程负责判断这个 event 缓存区是否已经满了，如果已经满了，则将缓存区内的所有 event 分发到 Appender 容器里面去，那些注册上来的 Appender 收到自己的 event 后，则开始处理自己的日志打印工作。 Dispatcher-Thread-3 线程是一个守护线程。</td>
+</tr>
+<tr>
+<td>Finalizer 线程</td>
+<td>JVM</td>
+<td>这个线程也是在 main 线程之后创建的，其优先级为 10，主要用于在垃圾收集前，调用对象的 finalize() 方法；关于 Finalizer 线程的几点：1) 只有当开始一轮垃圾收集时，才会开始调用 finalize() 方法；因此并不是所有对象的 finalize() 方法都会被执行；2) 该线程也是 daemon 线程，因此如果虚拟机中没有其他非 daemon 线程，不管该线程有没有执行完 finalize() 方法，JVM 也会退出；3) JVM 在垃圾收集时会将失去引用的对象包装成 Finalizer 对象（Reference 的实现），并放入 ReferenceQueue，由 Finalizer 线程来处理；最后将该 Finalizer 对象的引用置为 null，由垃圾收集器来回收；4) JVM 为什么要单独用一个线程来执行 finalize() 方法呢？如果 JVM 的垃圾收集线程自己来做，很有可能由于在 finalize() 方法中误操作导致 GC 线程停止或不可控，这对 GC 线程来说是一种灾难；</td>
+</tr>
+<tr>
+<td>Gang worker#0</td>
+<td>JVM</td>
+<td>JVM 用于做新生代垃圾回收（monir gc）的一个线程。# 号后面是线程编号，例如：Gang worker#1</td>
+</tr>
+<tr>
+<td>GC Daemon</td>
+<td>JVM</td>
+<td>GC Daemon 线程是 JVM 为 RMI 提供远程分布式 GC 使用的，GC Daemon 线程里面会主动调用 System.gc() 方法，对服务器进行 Full GC。 其初衷是当 RMI 服务器返回一个对象到其客户机（远程方法的调用方）时，其跟踪远程对象在客户机中的使用。当再没有更多的对客户机上远程对象的引用时，或者如果引用的 “租借” 过期并且没有更新，服务器将垃圾回收远程对象。不过，我们现在 jvm 启动参数都加上了 - XX:+DisableExplicitGC 配置，所以，这个线程只有打酱油的份了。</td>
+</tr>
+<tr>
+<td>IdleRemover</td>
+<td>JBOSS</td>
+<td>Jboss 连接池有一个最小值， 该线程每过一段时间都会被 Jboss 唤起，用于检查和销毁连接池中空闲和无效的连接，直到剩余的连接数小于等于它的最小值。</td>
+</tr>
+<tr>
+<td>Java2D Disposer</td>
+<td>JVM</td>
+<td>这个线程主要服务于 awt 的各个组件。 说起该线程的主要工作职责前，需要先介绍一下 Disposer 类是干嘛的。 Disposer 提供一个 addRecord 方法。 如果你想在一个对象被销毁前再做一些善后工作，那么，你可以调用 Disposer#addRecord 方法，将这个对象和一个自定义的 DisposerRecord 接口实现类，一起传入进去，进行注册。  Disposer 类会唤起 “Java2D Disposer” 线程，该线程会扫描已注册的这些对象是否要被回收了，如果是，则调用该对象对应的 DisposerRecord 实现类里面的 dispose 方法。Disposer 实际上不限于在 awt 应用场景，只是 awt 里面的很多组件需要访问很多操作系统资源，所以，这些组件在被回收时，需要先释放这些资源。</td>
+</tr>
+<tr>
+<td>InsttoolCacheScheduler_QuartzSchedulerThread</td>
+<td>Quartz</td>
+<td>InsttoolCacheScheduler_QuartzSchedulerThread 是 Quartz 的主线程，它主要负责实时的获取下一个时间点要触发的触发器，然后执行触发器相关联的作业 。 原理大致如下：   Spring 和 Quartz 结合使用的场景下，Spring IOC 容器初始化时会创建并初始化 Quartz 线程池（TreadPool），并启动它。刚启动时线程池中每个线程都处于等待状态，等待外界给他分配 Runnable（持有作业对象的线程）。   继而接着初始化并启动 Quartz 的主线程（InsttoolCacheScheduler_QuartzSchedulerThread），该线程自启动后就会处于等待状态。等待外界给出工作信号之后，该主线程的 run 方法才实质上开始工作。run 中会获取 JobStore 中下一次要触发的作业，拿到之后会一直等待到该作业的真正触发时间，然后将该作业包装成一个 JobRunShell 对象（该对象实现了 Runnable 接口，其实看是上面 TreadPool 中等待外界分配给他的 Runnable），然后将刚创建的 JobRunShell 交给线程池，由线程池负责执行作业。线程池收到 Runnable 后，从线程池一个线程启动 Runnable，反射调用 JobRunShell 中的 run 方法，run 方法执行完成之后， TreadPool 将该线程回收至空闲线程中。</td>
+</tr>
+<tr>
+<td>InsttoolCacheScheduler_Worker-2</td>
+<td>Quartz</td>
+<td>InsttoolCacheScheduler_Worker-2 线程就是 ThreadPool 线程的一个简单实现，它主要负责分配线程资源去执行InsttoolCacheScheduler_QuartzSchedulerThread 线程交给它的调度任务（也就是 JobRunShell）。</td>
+</tr>
+<tr>
+<td>JBossLifeThread</td>
+<td>Jboss</td>
+<td>Jboss 主线程启动成功，应用程序部署完毕之后将 JBossLifeThread 线程实例化并且 start，JBossLifeThread 线程启动成功之后就处于等待状态，以保持 Jboss Java 进程处于存活中。  所得比较通俗一点，就是 Jboss 启动流程执行完毕之后，为什么没有结束？ 就是因为有这个线程 hold 主了它。</td>
+</tr>
+<tr>
+<td>JBoss System Threads(1)-1</td>
+<td>Jboss</td>
+<td>该线程是一个 socket 服务，默认端口号为： 1099。主要用于接收外部 naming service（Jboss  JNDI）请求。</td>
+</tr>
+<tr>
+<td>JCA PoolFiller</td>
+<td>Jboss</td>
+<td>该线程主要为 JBoss 内部提供连接池的托管。 简单介绍一下工作原理 ：Jboss 内部凡是有远程连接需求的类，都需要实现ManagedConnectionFactory 接口，例如需要做 JDBC 连接的XAManagedConnectionFactory 对象，就实现了该接口。然后将 XAManagedConnectionFactory 对象，还有其它信息一起包装到InternalManagedConnectionPool对象里面，接着将InternalManagedConnectionPool交给 PoolFiller 对象里面的列队进行管理。  JCA PoolFiller 线程会定期判断列队内是否有需要创建和管理的InternalManagedConnectionPool对象，如果有的话，则调用该对象的 fillToMin 方法， 触发它去创建相应的远程连接，并且将这个连接维护到它相应的连接池里面去。</td>
+</tr>
+<tr>
+<td>JDWP Event Helper Thread</td>
+<td>JVM</td>
+<td>JDWP 是通讯交互协议，它定义了调试器和被调试程序之间传递信息的格式。它详细完整地定义了请求命令、回应数据和错误代码，保证了前端和后端的 JVMTI 和 JDI 的通信通畅。  该线程主要负责将 JDI 事件映射成 JVMTI 信号，以达到调试过程中操作 JVM 的目的。</td>
+</tr>
+<tr>
+<td>JDWP Transport Listener: dt_socket</td>
+<td>JVM</td>
+<td>该线程是一个 Java Debugger 的监听器线程，负责受理客户端的 debug 请求。 通常我们习惯将它的监听端口设置为 8787。</td>
+</tr>
+<tr>
+<td>Low Memory Detector</td>
+<td>JVM</td>
+<td>这个线程是负责对可使用内存进行检测，如果发现可用内存低，分配新的内存空间。</td>
+</tr>
+<tr>
+<td>process reaper</td>
+<td>JVM</td>
+<td>该线程负责去执行一个 OS 命令行的操作。</td>
+</tr>
+<tr>
+<td>Reference Handler</td>
+<td>JVM</td>
+<td>JVM 在创建 main 线程后就创建 Reference Handler 线程，其优先级最高，为 10，它主要用于处理引用对象本身（软引用、弱引用、虚引用）的垃圾回收问题 。</td>
+</tr>
+<tr>
+<td>Surrogate Locker Thread (CMS)</td>
+<td>JVM</td>
+<td>这个线程主要用于配合 CMS 垃圾回收器使用，它是一个守护线程，其主要负责处理 GC 过程中，Java 层的 Reference（指软引用、弱引用等等）与 jvm 内部层面的对象状态同步。 这里对它们的实现稍微做一下介绍：这里拿 WeakHashMap 做例子，将一些关键点先列出来（我们后面会将这些关键点全部串起来）：1. 我们知道 HashMap 用 Entry[] 数组来存储数据的，WeakHashMap 也不例外, 内部有一个 Entry[] 数组。2. WeakHashMap 的 Entry 比较特殊，它的继承体系结构为Entry-&gt;WeakReference-&gt;Reference 。3.Reference 里面有一个全局锁对象：Lock，它也被称为 pending_lock. 注意：它是静态对象。4. Reference  里面有一个静态变量：pending。5. Reference 里面有一个静态内部类：ReferenceHandler 的线程，它在 static 块里面被初始化并且启动，启动完成后处于 wait 状态，它在一个 Lock 同步锁模块中等待。6. 另外，WeakHashMap 里面还实例化了一个 ReferenceQueue 列队，这个列队的作用，后面会提到。7. 上面关键点就介绍完毕了，下面我们把他们串起来。假设，WeakHashMap 对象里面已经保存了很多对象的引用。JVM 在进行 CMS GC 的时候，会创建一个 ConcurrentMarkSweepThread（简称 CMST）线程去进行 GC，ConcurrentMarkSweepThread 线程被创建的同时会创建一个 SurrogateLockerThread（简称 SLT）线程并且启动它，SLT 启动之后，处于等待阶段。CMST 开始 GC 时，会发一个消息给 SLT 让它去获取 Java 层 Reference 对象的全局锁：Lock。 直到 CMS GC 完毕之后，JVM 会将 WeakHashMap 中所有被回收的对象所属的 WeakReference 容器对象放入到 Reference 的 pending 属性当中（每次 GC 完毕之后，pending 属性基本上都不会为 null 了），然后通知 SLT 释放并且 notify 全局锁: Lock。此时激活了 ReferenceHandler 线程的 run 方法，使其脱离 wait 状态，开始工作了。ReferenceHandler 这个线程会将 pending 中的所有 WeakReference 对象都移动到它们各自的列队当中，比如当前这个 WeakReference 属于某个 WeakHashMap 对象，那么它就会被放入相应的 ReferenceQueue 列队里面（该列队是链表结构）。 当我们下次从 WeakHashMap 对象里面 get、put 数据或者调用 size 方法的时候，WeakHashMap 就会将 ReferenceQueue 列队中的 WeakReference 依依 poll 出来去和 Entry[] 数据做比较，如果发现相同的，则说明这个 Entry 所保存的对象已经被 GC 掉了，那么将 Entry[] 内的 Entry 对象剔除掉。</td>
+</tr>
+<tr>
+<td>taskObjectTimerFactory</td>
+<td>JVM</td>
+<td>顾名思义，该线程就是用来执行任务的。 当我们把一个认为交给 Timer 对象，并且告诉它执行时间，周期时间后，Timer 就会将该任务放入任务列队，并且通知 taskObjectTimerFactory 线程去处理任务，taskObjectTimerFactory 线程会将状态为取消的任务从任务列队中移除，如果任务是非重复执行类型的，则在执行完该任务后，将它从任务列队中移除，如果该任务是需要重复执行的，则计算出它下一次执行的时间点。</td>
+</tr>
+<tr>
+<td>VM Periodic Task Thread</td>
+<td>JVM</td>
+<td>该线程是 JVM 周期性任务调度的线程，它由 WatcherThread 创建，是一个单例对象。 该线程在 JVM 内使用得比较频繁，比如：定期的内存监控、JVM 运行状况监控，还有我们经常需要去执行一些 jstat 这类命令查看 gc 的情况，如下：jstat -gcutil 23483 250 7   这个命令告诉 jvm 在控制台打印 PID 为：23483 的 gc 情况，间隔 250 毫秒打印一次，一共打印 7 次。</td>
+</tr>
+<tr>
+<td>VM Thread</td>
+<td>JVM</td>
+<td>这个线程就比较牛 b 了，是 jvm 里面的线程母体，根据 hotspot 源码（vmThread.hpp）里面的注释，它是一个单例的对象（最原始的线程）会产生或触发所有其他的线程，这个单个的 VM 线程是会被其他线程所使用来做一些 VM 操作（如，清扫垃圾等）。在 VMThread 的结构体里有一个 VMOperationQueue 列队，所有的 VM 线程操作 (vm_operation) 都会被保存到这个列队当中，VMThread 本身就是一个线程，它的线程负责执行一个自轮询的 loop 函数 (具体可以参考：VMThread.cpp 里面的void VMThread::loop()) ，该 loop 函数从 VMOperationQueue 列队中按照优先级取出当前需要执行的操作对象 (VM_Operation)，并且调用 VM_Operation-&gt;evaluate 函数去执行该操作类型本身的业务逻辑。ps：VM 操作类型被定义在vm_operations.hpp 文件内，列举几个：ThreadStop、ThreadDump、PrintThreads、GenCollectFull、GenCollectFullConcurrent、CMS_Initial_Mark、CMS_Final_Remark…..</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/jvm-java/" rel="tag">#jvm java</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/21/Java-Thread-Dumps-Part-1/" rel="next" title="Java Thread Dumps Part 1">
+                <i class="fa fa-chevron-left"></i> Java Thread Dumps Part 1
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/22/jvm重要线程说明/"
+           data-title="jvm重要线程说明" data-url="http://elasticxxoo.com/2016/11/22/jvm重要线程说明/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://ww4.sinaimg.cn/large/7853084cgw1f77lnb40cxj20bv0ed74l.jpg"
+               alt="Kevin Fu" />
+          <p class="site-author-name" itemprop="name">Kevin Fu</p>
+          <p class="site-description motion-element" itemprop="description">一个码农的幽静小窝</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kevin Fu</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"elasticxxoo"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
