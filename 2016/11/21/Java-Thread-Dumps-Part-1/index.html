@@ -1,0 +1,869 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java Dump," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="​    在这篇文章中，我们会试着理解Java Thread Dumps以及怎样用他们来快速解决一些公共的问题。这篇文章分为2部分。第一部分会集中在以下几个基础主题
+
+Java threads的简单介绍
+Thread dumps是什么
+Thread dumps的格式
+怎样获取Thread dumps
+
+​    在第二部分会学着通过以下步骤解剖理解thread dumps
+
+Thread状态的理解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Thread Dumps Part 1">
+<meta property="og:url" content="http://elasticxxoo.com/2016/11/21/Java-Thread-Dumps-Part-1/index.html">
+<meta property="og:site_name" content="Kevin's Blog">
+<meta property="og:description" content="​    在这篇文章中，我们会试着理解Java Thread Dumps以及怎样用他们来快速解决一些公共的问题。这篇文章分为2部分。第一部分会集中在以下几个基础主题
+
+Java threads的简单介绍
+Thread dumps是什么
+Thread dumps的格式
+怎样获取Thread dumps
+
+​    在第二部分会学着通过以下步骤解剖理解thread dumps
+
+Thread状态的理解">
+<meta property="og:updated_time" content="2016-11-21T14:53:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java Thread Dumps Part 1">
+<meta name="twitter:description" content="​    在这篇文章中，我们会试着理解Java Thread Dumps以及怎样用他们来快速解决一些公共的问题。这篇文章分为2部分。第一部分会集中在以下几个基础主题
+
+Java threads的简单介绍
+Thread dumps是什么
+Thread dumps的格式
+怎样获取Thread dumps
+
+​    在第二部分会学着通过以下步骤解剖理解thread dumps
+
+Thread状态的理解">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://elasticxxoo.com/2016/11/21/Java-Thread-Dumps-Part-1/"/>
+
+  <title> Java Thread Dumps Part 1 | Kevin's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?73f09ea81fbacddf8a8f21446d388867";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Kevin's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">这个人太懒了，什么都不想留下</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java Thread Dumps Part 1
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-21T17:16:27+08:00" content="2016-11-21">
+              2016-11-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/21/Java-Thread-Dumps-Part-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/21/Java-Thread-Dumps-Part-1/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>​    在这篇文章中，我们会试着理解<strong>Java Thread Dumps</strong>以及怎样用他们来快速解决一些公共的问题。这篇文章分为2部分。第一部分会集中在以下几个基础主题</p>
+<ol>
+<li>Java threads的简单介绍</li>
+<li>Thread dumps是什么</li>
+<li>Thread dumps的格式</li>
+<li>怎样获取Thread dumps</li>
+</ol>
+<p>​    在第二部分会学着通过以下步骤解剖理解thread dumps</p>
+<ol>
+<li>Thread状态的理解</li>
+<li>dumps分析的最佳实践</li>
+<li>竟态分析</li>
+<li>其他资源</li>
+</ol>
+<h3 id="Java-threads的简单介绍"><a href="#Java-threads的简单介绍" class="headerlink" title="Java threads的简单介绍"></a>Java threads的简单介绍</h3><p>进程和线程是并发编程的基本构造模块。</p>
+<p>进程自身包含有运行环境。一个进程一般有一批完整私有的基础运行资源，每个进程都有期其自己的内存空间。进程经常被看作异步程序或者应用。然而用户看到的单一应用程序，事实上是一批合作的进程的集合。为了促进进程之间的通信，大多数操作系统支持<strong>Inter Process Communication (IPC) resources</strong>，比如<strong>pipes</strong>和<strong>sockets</strong>.<strong>IPC</strong>不仅仅是为了同一个系统之间的通信，而是不同系统进程之间的通信。</p>
+<p>线程有时被当作轻量级进程。进程和线程都提供了运行环境，但是创建一个线程比创建一个进程所耗费的资源少。</p>
+<p>线程在进程内部-每个进程至少含有一个线程。线程共享进程的资源，包括Memory和open files.这样使得线程更加高效，但是却来了隐含的通信问题。多进程执行一个Java平台的一个至关重要的特性。每个应用程序至少含有一个或多个线程。从应用程序的角度来说，通常是由一个main线程开始进而创建更多额外的线程，在接下来的部分会提到，大多数的Java虚拟机的实现都是一个单独的进程。</p>
+<p>接下来的部分会假设你已经了解了基本的线程编程方式。</p>
+<h3 id="Thread-dumps是什么"><a href="#Thread-dumps是什么" class="headerlink" title="Thread dumps是什么"></a>Thread dumps是什么</h3><p>让我们通过以下的thread dump来了解什么是thread dumps</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function">Full thread dump Java <span class="title">HotSpot</span><span class="params">(TM)</span> Client <span class="title">VM</span> <span class="params">(<span class="number">1.5</span><span class="number">.0</span>_04-b05 mixed mode, sharing)</span>:</span></div><div class="line"></div><div class="line">"DestroyJavaVM" prio=<span class="number">5</span> tid=<span class="number">0x00036218</span> nid=<span class="number">0xd68</span> waiting on condition [<span class="number">0x00000000</span>..<span class="number">0x0007fae8</span>]</div><div class="line"></div><div class="line"><span class="string">"Thread-1"</span> prio=<span class="number">5</span> tid=<span class="number">0x00ab8e68</span> nid=<span class="number">0xe14</span> waiting on condition [<span class="number">0x02d0f000</span>..<span class="number">0x02d0fb68</span>]</div><div class="line">at java.lang.Thread.sleep(Native Method)</div><div class="line">at org.tw.testyard.thread.Consumer.run(Consumer.java:<span class="number">18</span>)</div><div class="line">at java.lang.Thread.run(Unknown Source)</div><div class="line"></div><div class="line"><span class="string">"Thread-0"</span> prio=<span class="number">5</span> tid=<span class="number">0x00aa3ab8</span> nid=<span class="number">0x1530</span> waiting on condition [<span class="number">0x02ccf000</span>..<span class="number">0x02ccfbe8</span>]</div><div class="line">at java.lang.Thread.sleep(Native Method)</div><div class="line">at org.tw.testyard.thread.Producer.run(Producer.java:<span class="number">24</span>)</div><div class="line">at java.lang.Thread.run(Unknown Source)</div><div class="line"></div><div class="line"><span class="string">"Low Memory Detector"</span> daemon prio=<span class="number">5</span> tid=<span class="number">0x00a6e950</span> nid=<span class="number">0x1698</span> runnable [<span class="number">0x00000000</span>..<span class="number">0x00000000</span>]</div><div class="line"></div><div class="line"><span class="string">"CompilerThread0"</span> daemon prio=<span class="number">10</span> tid=<span class="number">0x00a6d658</span> nid=<span class="number">0x5b8</span> waiting on condition [<span class="number">0x00000000</span>..<span class="number">0x02c0fa4c</span>]</div><div class="line"></div><div class="line"><span class="string">"Signal Dispatcher"</span> daemon prio=<span class="number">10</span> tid=<span class="number">0x00a6c7c0</span> nid=<span class="number">0x15e0</span> waiting on condition [<span class="number">0x00000000</span>..<span class="number">0x00000000</span>]</div><div class="line"></div><div class="line"><span class="string">"Finalizer"</span> daemon prio=<span class="number">9</span> tid=<span class="number">0x0003fb00</span> nid=<span class="number">0x598</span> in Object.wait() [<span class="number">0x02b8f000</span>..<span class="number">0x02b8fa68</span>]</div><div class="line">at java.lang.Object.wait(Native Method)</div><div class="line">- waiting on &lt;<span class="number">0x22a80840</span>&gt; (a java.lang.ref.ReferenceQueue$Lock)</div><div class="line">at java.lang.ref.ReferenceQueue.remove(Unknown Source)</div><div class="line">- locked &lt;<span class="number">0x22a80840</span>&gt; (a java.lang.ref.ReferenceQueue$Lock)</div><div class="line">at java.lang.ref.ReferenceQueue.remove(Unknown Source)</div><div class="line">at java.lang.ref.Finalizer$FinalizerThread.run(Unknown Source)</div><div class="line"></div><div class="line"><span class="string">"Reference Handler"</span> daemon prio=<span class="number">10</span> tid=<span class="number">0x00a47aa0</span> nid=<span class="number">0x1538</span> in Object.wait() [<span class="number">0x02b4f000</span>..<span class="number">0x02b4fae8</span>]</div><div class="line">at java.lang.Object.wait(Native Method)</div><div class="line">- waiting on &lt;<span class="number">0x22a80750</span>&gt; (a java.lang.ref.Reference$Lock)</div><div class="line">at java.lang.Object.wait(Unknown Source)</div><div class="line">at java.lang.ref.Reference$ReferenceHandler.run(Unknown Source)</div><div class="line">- locked &lt;<span class="number">0x22a80750</span>&gt; (a java.lang.ref.Reference$Lock)</div><div class="line"></div><div class="line"><span class="string">"VM Thread"</span> prio=<span class="number">10</span> tid=<span class="number">0x00a67ce8</span> nid=<span class="number">0xc78</span> runnable</div><div class="line"></div><div class="line"><span class="string">"VM Periodic Task Thread"</span> prio=<span class="number">10</span> tid=<span class="number">0x00a6fc90</span> nid=<span class="number">0x830</span> waiting on condition</div></pre></td></tr></table></figure>
+<p>顾名思义，thread dump就是java虚拟机所有线程的转存文件，它包含了当前虚拟机执行的所有线程的状态。以上thread dump片段展示了2个应用程序线程 <strong>[Thread-0 and Thread-1]</strong> 和java虚拟机特定的线程，比如<strong>“Signal Dispatcher”, “Finalizer”</strong>.在这篇文章，我们仅仅关注应用程序线程。</p>
+<p><strong>Thread dumps</strong>主要用在以下情景当中</p>
+<ul>
+<li><p>得到一个在特定时间点当前应用程序执行的整体印象</p>
+</li>
+<li><p>揭露一些明显的问题</p>
+<ul>
+<li>哪些代码是一直执行的</li>
+<li>哪些代码是被悬挂起来的</li>
+<li>应用程序的锁与线程同步问题</li>
+</ul>
+</li>
+<li><p>在生产环境下分析问题，这是一个特别有用的问题</p>
+<p>​</p>
+</li>
+</ul>
+<h3 id="Thread-dumps的格式"><a href="#Thread-dumps的格式" class="headerlink" title="Thread dumps的格式"></a>Thread dumps的格式</h3><p>Thread dumps的格式是随着<strong>JSE</strong>版本变化的。Sun公司和其他供应商表明了格式在不同的版本是不同的。然而有一个一直不变的是Thread dumps内包含的信息级别。就像以上提到的，thread dumps是java虚拟机状态包含所有应用程序和系统级别线程和监控状态的快照。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function">Full thread dump Java <span class="title">HotSpot</span><span class="params">(TM)</span> Client <span class="title">VM</span> <span class="params">(<span class="number">1.5</span><span class="number">.0</span>_04-b05 mixed mode, sharing)</span>:</span></div><div class="line"></div><div class="line">"Thread-1" prio=<span class="number">5</span> tid=<span class="number">0x00a995d0</span> nid=<span class="number">0x1300</span> in Object.wait() [<span class="number">0x02d0f000</span>..<span class="number">0x02d0fb68</span>]</div><div class="line">at java.lang.Object.wait(Native Method)</div><div class="line">- waiting on &lt;<span class="number">0x22aaa8d0</span>&gt; (a org.tw.testyard.thread.Drop)</div><div class="line">at java.lang.Object.wait(Unknown Source)</div><div class="line">at org.tw.testyard.thread.Drop.take(Drop.java:<span class="number">14</span>)</div><div class="line">- locked &lt;<span class="number">0x22aaa8d0</span>&gt; (a org.tw.testyard.thread.Drop)</div><div class="line">at org.tw.testyard.thread.Consumer.run(Consumer.java:<span class="number">15</span>)</div><div class="line">at java.lang.Thread.run(Unknown Source)</div><div class="line"></div><div class="line"><span class="string">"Thread-0"</span> prio=<span class="number">5</span> tid=<span class="number">0x00a88440</span> nid=<span class="number">0x6a4</span> waiting on condition [<span class="number">0x02ccf000</span>..<span class="number">0x02ccfbe8</span>]</div><div class="line">at java.lang.Thread.sleep(Native Method)</div><div class="line">at org.tw.testyard.thread.Producer.run(Producer.java:<span class="number">24</span>)</div><div class="line">at java.lang.Thread.run(Unknown Source)</div></pre></td></tr></table></figure>
+<p>在上面的Thread dump片段种，你可以明显看出</p>
+<ol>
+<li>Thread dump以”<strong>Full thread dump</strong>“,后续跟着一系列正在执行的线程</li>
+<li>有2个应用程序线程，分别叫“<strong>Thread-1</strong>”和“<strong>Thread-o</strong>”，这些是Java虚拟机为线程提供的默认名字</li>
+<li>“<strong>Thread-1</strong>”在<strong>Drop</strong>对象调用了<strong>Ojbect.wait()**</strong>后等待一个通知</li>
+<li>类似的，“<strong>Thread-o</strong>”在调用了<strong>Thread.sleep</strong>之后休眠在了一个<strong>Condition</strong>上面</li>
+<li>在这个特别的例子中，没有任何一个线程处于<strong>Runnable</strong>状态，因此这个应用程序没有作任何真正的工作</li>
+</ol>
+<p>尽管Thread dumps也列出了许多和系统相关的线程，但是我们这里不会对系统线程进行深入的探索</p>
+<h3 id="如何获取Thread-dumps"><a href="#如何获取Thread-dumps" class="headerlink" title="如何获取Thread dumps"></a>如何获取Thread dumps</h3><p>用户可以在系统处理异常状态的时候获取Thread dump。用户可以通过发送一个信号或者编程调用<strong>java.lang.Exception.printStackTrace()</strong>来获取Thread dump。但是通过<strong>printStackTrace()</strong>获取仅仅只是打印当前调用线程的Thread dump。</p>
+<p>在Unix/Linux环境下，Thread dumps可以通过以下命令获取</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">kill -QUIT PID</div><div class="line">或</div><div class="line">kill -<span class="number">3</span> PID</div></pre></td></tr></table></figure>
+<p>你可以从stderr的日志发现Thread dump。</p>
+<p>当然你还可以通过jvm工具打印Thread dump</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">jstack pid &gt;&gt; thread.dump</div></pre></td></tr></table></figure>
+<p>一般情况下都会连续打印3次，以获得更精确的信息</p>
+<p>一般情况下，当java 虚拟机崩溃的时候也会生成Thead dump，通常这是由各自虚拟机的实现指定的。你可以通过这些信息判断出来那些线程引起的java虚拟机的崩溃。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这只是一篇线程的快速浏览。下一篇文章还有重点介绍线程的状态和thread dump的说明解析</p>
+<p>此篇文章翻译自<a href="https://sites.google.com/site/threaddumps/java-thread-dumps" target="_blank" rel="external">java-thread-dumps</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java-Dump/" rel="tag">#Java Dump</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/18/Spark-Streaming-2-0流程概览/" rel="next" title="Spark-Streaming-2.0流程概览">
+                <i class="fa fa-chevron-left"></i> Spark-Streaming-2.0流程概览
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/21/Java-Thread-Dumps-Part-1/"
+           data-title="Java Thread Dumps Part 1" data-url="http://elasticxxoo.com/2016/11/21/Java-Thread-Dumps-Part-1/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://ww4.sinaimg.cn/large/7853084cgw1f77lnb40cxj20bv0ed74l.jpg"
+               alt="Kevin Fu" />
+          <p class="site-author-name" itemprop="name">Kevin Fu</p>
+          <p class="site-description motion-element" itemprop="description">有时间就写写</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-threads的简单介绍"><span class="nav-number">1.</span> <span class="nav-text">Java threads的简单介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread-dumps是什么"><span class="nav-number">2.</span> <span class="nav-text">Thread dumps是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Thread-dumps的格式"><span class="nav-number">3.</span> <span class="nav-text">Thread dumps的格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何获取Thread-dumps"><span class="nav-number">4.</span> <span class="nav-text">如何获取Thread dumps</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kevin Fu</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"elasticxxoo"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

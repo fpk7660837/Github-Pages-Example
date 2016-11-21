@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="CentOS," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -84,31 +84,22 @@
 
 
 
-<meta name="description" content="​    对于用CentOS系统的人来说，装软件一般就是用的yum命令来安装的，系统自带的yum源有时候会非常慢，可以替换为国内阿里提供的阿里云yum源。
-
-备份你的原镜像文件，以免出错后可以恢复
-1mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
-
-下载新的 CentOS-Base.repo">
+<meta name="description" content="启动过程
+启动StreamingContext
+123456789101112131415161718192021222324252627282930313233343536373839404142434445464748/*** Start the execution of the streams.** @throws IllegalStateException if the Streaming">
 <meta property="og:type" content="article">
-<meta property="og:title" content="阿里云yum源替换">
-<meta property="og:url" content="http://elasticxxoo.com/2016/11/17/system-replace-aliyun-yum-source/index.html">
+<meta property="og:title" content="Spark-Streaming-2.0流程概览">
+<meta property="og:url" content="http://elasticxxoo.com/2016/11/18/Spark-Streaming-2-0流程概览/index.html">
 <meta property="og:site_name" content="Kevin's Blog">
-<meta property="og:description" content="​    对于用CentOS系统的人来说，装软件一般就是用的yum命令来安装的，系统自带的yum源有时候会非常慢，可以替换为国内阿里提供的阿里云yum源。
-
-备份你的原镜像文件，以免出错后可以恢复
-1mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
-
-下载新的 CentOS-Base.repo">
-<meta property="og:updated_time" content="2016-11-17T11:56:32.000Z">
+<meta property="og:description" content="启动过程
+启动StreamingContext
+123456789101112131415161718192021222324252627282930313233343536373839404142434445464748/*** Start the execution of the streams.** @throws IllegalStateException if the Streaming">
+<meta property="og:updated_time" content="2016-11-21T09:15:23.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="阿里云yum源替换">
-<meta name="twitter:description" content="​    对于用CentOS系统的人来说，装软件一般就是用的yum命令来安装的，系统自带的yum源有时候会非常慢，可以替换为国内阿里提供的阿里云yum源。
-
-备份你的原镜像文件，以免出错后可以恢复
-1mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
-
-下载新的 CentOS-Base.repo">
+<meta name="twitter:title" content="Spark-Streaming-2.0流程概览">
+<meta name="twitter:description" content="启动过程
+启动StreamingContext
+123456789101112131415161718192021222324252627282930313233343536373839404142434445464748/*** Start the execution of the streams.** @throws IllegalStateException if the Streaming">
 
 
 
@@ -129,9 +120,9 @@
 
 
 
-  <link rel="canonical" href="http://elasticxxoo.com/2016/11/17/system-replace-aliyun-yum-source/"/>
+  <link rel="canonical" href="http://elasticxxoo.com/2016/11/18/Spark-Streaming-2-0流程概览/"/>
 
-  <title> 阿里云yum源替换 | Kevin's Blog </title>
+  <title> Spark-Streaming-2.0流程概览 | Kevin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -294,7 +285,7 @@
             
             
               
-                阿里云yum源替换
+                Spark-Streaming-2.0流程概览
               
             
           </h1>
@@ -306,38 +297,19 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-11-17T19:21:04+08:00" content="2016-11-17">
-              2016-11-17
+            <time itemprop="dateCreated" datetime="2016-11-18T16:18:50+08:00" content="2016-11-18">
+              2016-11-18
             </time>
           </span>
 
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/System/" itemprop="url" rel="index">
-                    <span itemprop="name">System</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
           
 
           
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/11/17/system-replace-aliyun-yum-source/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/17/system-replace-aliyun-yum-source/" itemprop="commentsCount"></span>
+                <a href="/2016/11/18/Spark-Streaming-2-0流程概览/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/18/Spark-Streaming-2-0流程概览/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -360,17 +332,18 @@
       
 
       
-        <p>​    对于用CentOS系统的人来说，装软件一般就是用的yum命令来安装的，系统自带的yum源有时候会非常慢，可以替换为国内阿里提供的阿里云yum源。</p>
-<ul>
-<li><p>备份你的原镜像文件，以免出错后可以恢复</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup</div></pre></td></tr></table></figure>
+        <h4 id="启动过程"><a href="#启动过程" class="headerlink" title="启动过程"></a>启动过程</h4><ul>
+<li><p>启动<strong>StreamingContext</strong></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">* Start the execution of the streams.</div><div class="line">*</div><div class="line">* @throws IllegalStateException if the StreamingContext is already stopped.</div><div class="line">*/</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">start</span></span>(): <span class="type">Unit</span> = synchronized &#123;</div><div class="line"> state <span class="keyword">match</span> &#123;</div><div class="line">   <span class="keyword">case</span> <span class="type">INITIALIZED</span> =&gt;</div><div class="line">     startSite.set(<span class="type">DStream</span>.getCreationSite())</div><div class="line">     <span class="type">StreamingContext</span>.<span class="type">ACTIVATION_LOCK</span>.synchronized &#123;</div><div class="line">       <span class="type">StreamingContext</span>.assertNoOtherContextIsActive()</div><div class="line">       <span class="keyword">try</span> &#123;</div><div class="line">         validate()</div><div class="line"></div><div class="line">         <span class="comment">// Start the streaming scheduler in a new thread, so that thread local properties</span></div><div class="line">         <span class="comment">// like call sites and job groups can be reset without affecting those of the</span></div><div class="line">         <span class="comment">// current thread.</span></div><div class="line">         <span class="type">ThreadUtils</span>.runInNewThread(<span class="string">"streaming-start"</span>) &#123;</div><div class="line">           sparkContext.setCallSite(startSite.get)</div><div class="line">           sparkContext.clearJobGroup()</div><div class="line">           sparkContext.setLocalProperty(<span class="type">SparkContext</span>.<span class="type">SPARK_JOB_INTERRUPT_ON_CANCEL</span>, <span class="string">"false"</span>)</div><div class="line">           savedProperties.set(<span class="type">SerializationUtils</span>.clone(sparkContext.localProperties.get()))</div><div class="line">           scheduler.start()</div><div class="line">         &#125;</div><div class="line">         state = <span class="type">StreamingContextState</span>.<span class="type">ACTIVE</span></div><div class="line">       &#125; <span class="keyword">catch</span> &#123;</div><div class="line">         <span class="keyword">case</span> <span class="type">NonFatal</span>(e) =&gt;</div><div class="line">           logError(<span class="string">"Error starting the context, marking it as stopped"</span>, e)</div><div class="line">           scheduler.stop(<span class="literal">false</span>)</div><div class="line">           state = <span class="type">StreamingContextState</span>.<span class="type">STOPPED</span></div><div class="line">           <span class="keyword">throw</span> e</div><div class="line">       &#125;</div><div class="line">       <span class="type">StreamingContext</span>.setActiveContext(<span class="keyword">this</span>)</div><div class="line">     &#125;</div><div class="line">     logDebug(<span class="string">"Adding shutdown hook"</span>) <span class="comment">// force eager creation of logger</span></div><div class="line">     shutdownHookRef = <span class="type">ShutdownHookManager</span>.addShutdownHook(</div><div class="line">       <span class="type">StreamingContext</span>.<span class="type">SHUTDOWN_HOOK_PRIORITY</span>)(stopOnShutdown)</div><div class="line">     <span class="comment">// Registering Streaming Metrics at the start of the StreamingContext</span></div><div class="line">     assert(env.metricsSystem != <span class="literal">null</span>)</div><div class="line">     env.metricsSystem.registerSource(streamingSource)</div><div class="line">     uiTab.foreach(_.attach())</div><div class="line">     logInfo(<span class="string">"StreamingContext started"</span>)</div><div class="line">   <span class="keyword">case</span> <span class="type">ACTIVE</span> =&gt;</div><div class="line">     logWarning(<span class="string">"StreamingContext has already been started"</span>)</div><div class="line">   <span class="keyword">case</span> <span class="type">STOPPED</span> =&gt;</div><div class="line">     <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">IllegalStateException</span>(<span class="string">"StreamingContext has already been stopped"</span>)</div><div class="line"> &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">- 启动**JobScheduler**</div><div class="line"></div><div class="line">  ```scala</div><div class="line">  def start(): Unit = synchronized &#123;</div><div class="line">    if (eventLoop != null) return // scheduler has already been started</div><div class="line"></div><div class="line">    logDebug(&quot;Starting JobScheduler&quot;)</div><div class="line">    eventLoop = new EventLoop[JobSchedulerEvent](&quot;JobScheduler&quot;) &#123;</div><div class="line">      override protected def onReceive(event: JobSchedulerEvent): Unit = processEvent(event)</div><div class="line"></div><div class="line">      override protected def onError(e: Throwable): Unit = reportError(&quot;Error in job scheduler&quot;, e)</div><div class="line">    &#125;</div><div class="line">    eventLoop.start()</div><div class="line"></div><div class="line">    // attach rate controllers of input streams to receive batch completion updates</div><div class="line">    for &#123;</div><div class="line">      inputDStream &lt;- ssc.graph.getInputStreams</div><div class="line">      rateController &lt;- inputDStream.rateController</div><div class="line">    &#125; ssc.addStreamingListener(rateController)</div><div class="line"></div><div class="line">    listenerBus.start()</div><div class="line">    receiverTracker = new ReceiverTracker(ssc)</div><div class="line">    inputInfoTracker = new InputInfoTracker(ssc)</div><div class="line"></div><div class="line">    val executorAllocClient: ExecutorAllocationClient = ssc.sparkContext.schedulerBackend match &#123;</div><div class="line">      case b: ExecutorAllocationClient =&gt; b.asInstanceOf[ExecutorAllocationClient]</div><div class="line">      case _ =&gt; null</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    executorAllocationManager = ExecutorAllocationManager.createIfEnabled(</div><div class="line">      executorAllocClient,</div><div class="line">      receiverTracker,</div><div class="line">      ssc.conf,</div><div class="line">      ssc.graph.batchDuration.milliseconds,</div><div class="line">      clock)</div><div class="line">    executorAllocationManager.foreach(ssc.addStreamingListener)</div><div class="line">    receiverTracker.start()</div><div class="line">    jobGenerator.start()</div><div class="line">    executorAllocationManager.foreach(_.start())</div><div class="line">    logInfo(&quot;Started JobScheduler&quot;)</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
 </li>
-<li><p>下载新的 CentOS-Base.repo 到 / etc/yum.repos.d/</p>
-<p>  <a href="http://mirrors.aliyun.com/repo/" target="_blank" rel="external">这里</a>可以选择不同的系统的yum源地址</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-X.repo</div></pre></td></tr></table></figure>
+<li><p>启动<strong>JobScheduler</strong> <strong>EventLoop</strong></p>
 </li>
-<li><p>生成源的缓存</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">yum clean all</div><div class="line">yum makecache</div></pre></td></tr></table></figure>
+<li>启动<strong>ListenerBus</strong><ul>
+<li>启动<strong>receiverTracker</strong></li>
+<li>启动<strong>JobGenerator</strong>s</li>
+<li>​</li>
+</ul>
 </li>
 </ul>
 
@@ -393,27 +366,21 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/CentOS/" rel="tag">#CentOS</a>
-          
-        </div>
-      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/11/12/spark-reprinted-series-job-submit-and-execute/" rel="next" title="Spark转载系列-Job的提交与运行">
-                <i class="fa fa-chevron-left"></i> Spark转载系列-Job的提交与运行
+              <a href="/2016/11/17/system-replace-aliyun-yum-source/" rel="next" title="阿里云yum源替换">
+                <i class="fa fa-chevron-left"></i> 阿里云yum源替换
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/11/18/Spark-Streaming-2-0流程概览/" rel="prev" title="Spark-Streaming-2.0流程概览">
-                Spark-Streaming-2.0流程概览 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/11/21/Java-Thread-Dumps-Part-1/" rel="prev" title="Java Thread Dumps Part 1">
+                Java Thread Dumps Part 1 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -440,8 +407,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/11/17/system-replace-aliyun-yum-source/"
-           data-title="阿里云yum源替换" data-url="http://elasticxxoo.com/2016/11/17/system-replace-aliyun-yum-source/">
+      <div class="ds-thread" data-thread-key="2016/11/18/Spark-Streaming-2-0流程概览/"
+           data-title="Spark-Streaming-2.0流程概览" data-url="http://elasticxxoo.com/2016/11/18/Spark-Streaming-2-0流程概览/">
       </div>
     
   </div>
@@ -532,7 +499,7 @@
               
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#启动过程"><span class="nav-number">1.</span> <span class="nav-text">启动过程</span></a></li></ol></div>
             
           </div>
         </section>
