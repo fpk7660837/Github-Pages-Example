@@ -84,22 +84,17 @@
 
 
 
-<meta name="description" content="启动过程
-启动StreamingContext
-123456789101112131415161718192021222324252627282930313233343536373839404142434445464748/*** Start the execution of the streams.** @throws IllegalStateException if the Streaming">
+<meta name="description" content="今天突然心血来潮，想重新整理一下博客的内容！  努力克服自己的懒惰，让自己养成一个写技术博客的习惯！  希望不要再让自己失望了！">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spark-Streaming-2.0流程概览">
-<meta property="og:url" content="http://elasticxxoo.com/2016/11/18/Spark-Streaming-2-0流程概览/index.html">
-<meta property="og:site_name" content="Kevin's Blog">
-<meta property="og:description" content="启动过程
-启动StreamingContext
-123456789101112131415161718192021222324252627282930313233343536373839404142434445464748/*** Start the execution of the streams.** @throws IllegalStateException if the Streaming">
-<meta property="og:updated_time" content="2016-11-21T14:57:27.000Z">
+<meta property="og:title" content="锲子">
+<meta property="og:url" content="http://elasticxxoo.com/2017/10/10/锲子/index.html">
+<meta property="og:site_name" content="Kevin&#39;s Blog">
+<meta property="og:description" content="今天突然心血来潮，想重新整理一下博客的内容！  努力克服自己的懒惰，让自己养成一个写技术博客的习惯！  希望不要再让自己失望了！">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-10-10T12:20:51.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Spark-Streaming-2.0流程概览">
-<meta name="twitter:description" content="启动过程
-启动StreamingContext
-123456789101112131415161718192021222324252627282930313233343536373839404142434445464748/*** Start the execution of the streams.** @throws IllegalStateException if the Streaming">
+<meta name="twitter:title" content="锲子">
+<meta name="twitter:description" content="今天突然心血来潮，想重新整理一下博客的内容！  努力克服自己的懒惰，让自己养成一个写技术博客的习惯！  希望不要再让自己失望了！">
 
 
 
@@ -120,9 +115,9 @@
 
 
 
-  <link rel="canonical" href="http://elasticxxoo.com/2016/11/18/Spark-Streaming-2-0流程概览/"/>
+  <link rel="canonical" href="http://elasticxxoo.com/2017/10/10/锲子/"/>
 
-  <title> Spark-Streaming-2.0流程概览 | Kevin's Blog </title>
+  <title> 锲子 | Kevin's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -285,7 +280,7 @@
             
             
               
-                Spark-Streaming-2.0流程概览
+                锲子
               
             
           </h1>
@@ -297,8 +292,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-11-18T16:18:50+08:00" content="2016-11-18">
-              2016-11-18
+            <time itemprop="dateCreated" datetime="2017-10-10T20:20:29+08:00" content="2017-10-10">
+              2017-10-10
             </time>
           </span>
 
@@ -308,8 +303,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/11/18/Spark-Streaming-2-0流程概览/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/18/Spark-Streaming-2-0流程概览/" itemprop="commentsCount"></span>
+                <a href="/2017/10/10/锲子/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/10/10/锲子/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -332,25 +327,12 @@
       
 
       
-        <h4 id="启动过程"><a href="#启动过程" class="headerlink" title="启动过程"></a>启动过程</h4><ul>
-<li><p>启动<strong>StreamingContext</strong></p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">* Start the execution of the streams.</div><div class="line">*</div><div class="line">* @throws IllegalStateException if the StreamingContext is already stopped.</div><div class="line">*/</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">start</span></span>(): <span class="type">Unit</span> = synchronized &#123;</div><div class="line"> state <span class="keyword">match</span> &#123;</div><div class="line">   <span class="keyword">case</span> <span class="type">INITIALIZED</span> =&gt;</div><div class="line">     startSite.set(<span class="type">DStream</span>.getCreationSite())</div><div class="line">     <span class="type">StreamingContext</span>.<span class="type">ACTIVATION_LOCK</span>.synchronized &#123;</div><div class="line">       <span class="type">StreamingContext</span>.assertNoOtherContextIsActive()</div><div class="line">       <span class="keyword">try</span> &#123;</div><div class="line">         validate()</div><div class="line"></div><div class="line">         <span class="comment">// Start the streaming scheduler in a new thread, so that thread local properties</span></div><div class="line">         <span class="comment">// like call sites and job groups can be reset without affecting those of the</span></div><div class="line">         <span class="comment">// current thread.</span></div><div class="line">         <span class="type">ThreadUtils</span>.runInNewThread(<span class="string">"streaming-start"</span>) &#123;</div><div class="line">           sparkContext.setCallSite(startSite.get)</div><div class="line">           sparkContext.clearJobGroup()</div><div class="line">           sparkContext.setLocalProperty(<span class="type">SparkContext</span>.<span class="type">SPARK_JOB_INTERRUPT_ON_CANCEL</span>, <span class="string">"false"</span>)</div><div class="line">           savedProperties.set(<span class="type">SerializationUtils</span>.clone(sparkContext.localProperties.get()))</div><div class="line">           scheduler.start()</div><div class="line">         &#125;</div><div class="line">         state = <span class="type">StreamingContextState</span>.<span class="type">ACTIVE</span></div><div class="line">       &#125; <span class="keyword">catch</span> &#123;</div><div class="line">         <span class="keyword">case</span> <span class="type">NonFatal</span>(e) =&gt;</div><div class="line">           logError(<span class="string">"Error starting the context, marking it as stopped"</span>, e)</div><div class="line">           scheduler.stop(<span class="literal">false</span>)</div><div class="line">           state = <span class="type">StreamingContextState</span>.<span class="type">STOPPED</span></div><div class="line">           <span class="keyword">throw</span> e</div><div class="line">       &#125;</div><div class="line">       <span class="type">StreamingContext</span>.setActiveContext(<span class="keyword">this</span>)</div><div class="line">     &#125;</div><div class="line">     logDebug(<span class="string">"Adding shutdown hook"</span>) <span class="comment">// force eager creation of logger</span></div><div class="line">     shutdownHookRef = <span class="type">ShutdownHookManager</span>.addShutdownHook(</div><div class="line">       <span class="type">StreamingContext</span>.<span class="type">SHUTDOWN_HOOK_PRIORITY</span>)(stopOnShutdown)</div><div class="line">     <span class="comment">// Registering Streaming Metrics at the start of the StreamingContext</span></div><div class="line">     assert(env.metricsSystem != <span class="literal">null</span>)</div><div class="line">     env.metricsSystem.registerSource(streamingSource)</div><div class="line">     uiTab.foreach(_.attach())</div><div class="line">     logInfo(<span class="string">"StreamingContext started"</span>)</div><div class="line">   <span class="keyword">case</span> <span class="type">ACTIVE</span> =&gt;</div><div class="line">     logWarning(<span class="string">"StreamingContext has already been started"</span>)</div><div class="line">   <span class="keyword">case</span> <span class="type">STOPPED</span> =&gt;</div><div class="line">     <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">IllegalStateException</span>(<span class="string">"StreamingContext has already been stopped"</span>)</div><div class="line"> &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>​</p>
-</li>
-<li><p>启动<strong>JobScheduler</strong></p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">start</span></span>(): <span class="type">Unit</span> = synchronized &#123;</div><div class="line">   <span class="keyword">if</span> (eventLoop != <span class="literal">null</span>) <span class="keyword">return</span> <span class="comment">// scheduler has already been started</span></div><div class="line"></div><div class="line">   logDebug(<span class="string">"Starting JobScheduler"</span>)</div><div class="line">   eventLoop = <span class="keyword">new</span> <span class="type">EventLoop</span>[<span class="type">JobSchedulerEvent</span>](<span class="string">"JobScheduler"</span>) &#123;</div><div class="line">     <span class="keyword">override</span> <span class="keyword">protected</span> <span class="function"><span class="keyword">def</span> <span class="title">onReceive</span></span>(event: <span class="type">JobSchedulerEvent</span>): <span class="type">Unit</span> = processEvent(event)</div><div class="line"></div><div class="line">     <span class="keyword">override</span> <span class="keyword">protected</span> <span class="function"><span class="keyword">def</span> <span class="title">onError</span></span>(e: <span class="type">Throwable</span>): <span class="type">Unit</span> = reportError(<span class="string">"Error in job scheduler"</span>, e)</div><div class="line">   &#125;</div><div class="line">   eventLoop.start()</div><div class="line"></div><div class="line">   <span class="comment">// attach rate controllers of input streams to receive batch completion updates</span></div><div class="line">   <span class="keyword">for</span> &#123;</div><div class="line">     inputDStream &lt;- ssc.graph.getInputStreams</div><div class="line">     rateController &lt;- inputDStream.rateController</div><div class="line">   &#125; ssc.addStreamingListener(rateController)</div><div class="line"></div><div class="line">   listenerBus.start()</div><div class="line">   receiverTracker = <span class="keyword">new</span> <span class="type">ReceiverTracker</span>(ssc)</div><div class="line">   inputInfoTracker = <span class="keyword">new</span> <span class="type">InputInfoTracker</span>(ssc)</div><div class="line"></div><div class="line">   <span class="keyword">val</span> executorAllocClient: <span class="type">ExecutorAllocationClient</span> = ssc.sparkContext.schedulerBackend <span class="keyword">match</span> &#123;</div><div class="line">     <span class="keyword">case</span> b: <span class="type">ExecutorAllocationClient</span> =&gt; b.asInstanceOf[<span class="type">ExecutorAllocationClient</span>]</div><div class="line">     <span class="keyword">case</span> _ =&gt; <span class="literal">null</span></div><div class="line">   &#125;</div><div class="line"></div><div class="line">   executorAllocationManager = <span class="type">ExecutorAllocationManager</span>.createIfEnabled(</div><div class="line">     executorAllocClient,</div><div class="line">     receiverTracker,</div><div class="line">     ssc.conf,</div><div class="line">     ssc.graph.batchDuration.milliseconds,</div><div class="line">     clock)</div><div class="line">   executorAllocationManager.foreach(ssc.addStreamingListener)</div><div class="line">   receiverTracker.start()</div><div class="line">   jobGenerator.start()</div><div class="line">   executorAllocationManager.foreach(_.start())</div><div class="line">   logInfo(<span class="string">"Started JobScheduler"</span>)</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
-</li>
-<li><p>启动<strong>JobScheduler</strong> <strong>EventLoop</strong></p>
-</li>
-<li>启动<strong>ListenerBus</strong><ul>
-<li>启动<strong>receiverTracker</strong></li>
-<li>启动<strong>JobGenerator</strong>s</li>
-<li>​</li>
-</ul>
-</li>
-</ul>
-<p>后续待补充…</p>
+        <pre><code>今天突然心血来潮，想重新整理一下博客的内容！
 
+努力克服自己的懒惰，让自己养成一个写技术博客的习惯！
+
+希望不要再让自己失望了！
+</code></pre>
       
     </div>
 
@@ -371,24 +353,6 @@
     <footer class="post-footer">
       
 
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2016/11/17/system-replace-aliyun-yum-source/" rel="next" title="阿里云yum源替换">
-                <i class="fa fa-chevron-left"></i> 阿里云yum源替换
-              </a>
-            
-          </div>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/11/21/Java-Thread-Dumps-Part-1/" rel="prev" title="Java Thread Dumps Part 1">
-                Java Thread Dumps Part 1 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
       
 
       
@@ -411,8 +375,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/11/18/Spark-Streaming-2-0流程概览/"
-           data-title="Spark-Streaming-2.0流程概览" data-url="http://elasticxxoo.com/2016/11/18/Spark-Streaming-2-0流程概览/">
+      <div class="ds-thread" data-thread-key="2017/10/10/锲子/"
+           data-title="锲子" data-url="http://elasticxxoo.com/2017/10/10/锲子/">
       </div>
     
   </div>
@@ -457,27 +421,13 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">1</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           
-            <div class="site-state-item site-state-categories">
-              <a href="/categories">
-                <span class="site-state-item-count">3</span>
-                <span class="site-state-item-name">分类</span>
-              </a>
-            </div>
-          
 
-          
-            <div class="site-state-item site-state-tags">
-              <a href="/tags">
-                <span class="site-state-item-count">4</span>
-                <span class="site-state-item-name">标签</span>
-              </a>
-            </div>
           
 
         </nav>
@@ -503,7 +453,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#启动过程"><span class="nav-number">1.</span> <span class="nav-text">启动过程</span></a></li></ol></div>
+              <p class="post-toc-empty">此文章未包含目录</p>
             
           </div>
         </section>
@@ -522,7 +472,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2016</span>
+  <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
